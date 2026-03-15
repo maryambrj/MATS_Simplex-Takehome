@@ -1,0 +1,8 @@
+Final-layer PCA dims for 90% variance: 3
+Final-layer PCA dims for 95% variance: 4
+
+R^2 global test scores:
+R^2 for Posterior_P(C) probe: 0.6298
+R^2 for Belief_C0 probe: 0.9574
+R^2 for Belief_C1 probe: 0.9582
+R^2 for Belief_C2 probe: 0.8504

@@ -163,3 +163,26 @@ class Mess3Process:
             etas[t + 1] = eta_current
 
         return etas
+
+def compute_component_likelihood_and_belief(tokens: list[int], alpha: float, x: float) -> tuple[float, np.ndarray]:
+    """
+    Computes the prefix likelihood under component C and the belief state P(S_t | C, prefix).
+    Using exactly the part 5 user formulas.
+    """
+    process = Mess3Process(alpha, x)
+    matrices = {0: process.T0, 1: process.T1, 2: process.T2}
+    
+    # uniform stationary distribution (row vector)
+    row = np.array([1/3, 1/3, 1/3], dtype=np.float64)
+    
+    for token in tokens:
+        T_token = matrices[token]
+        row = row @ T_token
+        
+    likelihood = row.sum()
+    if likelihood > 0:
+        belief = row / likelihood
+    else:
+        belief = np.array([1/3, 1/3, 1/3])  # fallback
+        
+    return likelihood, belief
