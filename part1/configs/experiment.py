@@ -19,8 +19,8 @@ def build_experiment_spec() -> ExperimentSpec:
         generator_type="mess3_mixture",
         components=[
             Mess3ComponentSpec(name="C0", alpha=0.60, x=0.15),
-            Mess3ComponentSpec(name="C1", alpha=0.75, x=0.10),
-            Mess3ComponentSpec(name="C2", alpha=0.60, x=0.35),
+            Mess3ComponentSpec(name="C1", alpha=0.79, x=0.11),
+            Mess3ComponentSpec(name="C2", alpha=0.60, x=0.49),
         ],
         mixture_weights=[1 / 3, 1 / 3, 1 / 3],
         token_values=[0, 1, 2],
