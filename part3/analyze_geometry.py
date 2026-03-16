@@ -96,6 +96,7 @@ def run_geometry_analysis():
         ax.set_xlabel("PC1")
         ax.set_ylabel("PC2")
         ax.set_zlabel("PC3")
+        ax.view_init(elev=45, azim=45) # Standardized diagonal view
     
     from matplotlib.lines import Line2D
     h = [Line2D([0], [0], marker='o', color='w', label=f'C{i}', markerfacecolor=comp_colors[i], markersize=8) for i in range(3)]
@@ -121,6 +122,7 @@ def run_geometry_analysis():
         ax.set_xlabel("PC1")
         ax.set_ylabel("PC2")
         ax.set_zlabel("PC3")
+        ax.view_init(elev=45, azim=45) # New vertical-diagonal perspective
     
     fig.colorbar(scatter, ax=fig.axes, label="P(S_t=0 | C=0, prefix)", shrink=0.6)
     plt.suptitle("Within-Component C0 Belief 3D Manifold Across Layers")
