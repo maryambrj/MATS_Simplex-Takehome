@@ -1,5 +1,3 @@
-"""End-to-end runner for Part 1."""
-
 import os
 import subprocess
 import sys
@@ -40,7 +38,6 @@ def main():
     # 3. Generate Evaluation Plots & Print Examples
     print("\nGenerating evaluation plots and examples...")
     
-    # Plot 1: Training and validation loss vs epoch
     log_path = artifacts_dir / "train_log.json"
     if log_path.exists():
         with open(log_path, "r") as f:
@@ -64,7 +61,6 @@ def main():
         plt.close()
         print(f"Saved: {plot_loss_path}")
 
-    # Plot 2: Bar chart of component counts & Example sequences
     if train_path.exists():
         train_records = torch.load(train_path, weights_only=False)
         

@@ -3,7 +3,6 @@
 import sys
 from pathlib import Path
 
-# Add project root to sys.path so we can import configs and src
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 import torch
@@ -18,7 +17,7 @@ from part1.src.model import DecoderOnlyTransformer
 import json
 
 def evaluate(model, dataloader, device):
-    """Tiny evaluation function returning average cross entropy loss."""
+
     model.eval()
     val_loss = 0.0
     with torch.no_grad():
@@ -32,7 +31,6 @@ def evaluate(model, dataloader, device):
 
 
 def main():
-    # 1. Configuration constants from EXPERIMENT_SPEC
     BATCH_SIZE = 64
     EPOCHS = 10
     LR = EXPERIMENT_SPEC.training.learning_rate  # 5e-4
@@ -40,7 +38,6 @@ def main():
     device = torch.device('cuda' if torch.cuda.is_available() else 'mps' if torch.backends.mps.is_available() else 'cpu')
     print(f"Using device: {device}")
 
-    # 2. Load Dataset splits
     print("Loading pre-generated dataset splits...")
     artifacts_dir = Path(__file__).resolve().parent / "artifacts"
     
@@ -53,7 +50,6 @@ def main():
     train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True)
     val_loader = DataLoader(val_dataset, batch_size=BATCH_SIZE, shuffle=False)
     
-    # 3. Initialize Model
     print("Initializing DecoderOnlyTransformer...")
     model = DecoderOnlyTransformer(
         vocab_size=EXPERIMENT_SPEC.dataset.vocab_size,            # 4
@@ -64,10 +60,8 @@ def main():
         n_layers=EXPERIMENT_SPEC.model.n_layers                   # 2
     ).to(device)
     
-    # 4. Initialize Optimizer
     optimizer = torch.optim.Adam(model.parameters(), lr=LR)
     
-    # 5. Training Loop
     print(f"Starting training for {EPOCHS} epochs...")
     train_log = []
     
@@ -75,7 +69,6 @@ def main():
         model.train()
         train_loss = 0.0
         
-        # Train pass
         pbar = tqdm(train_loader, desc=f"Epoch {epoch} [Train]", leave=False)
         for batch in pbar:
             x = batch["input_ids"].to(device)
@@ -93,7 +86,6 @@ def main():
             
         train_loss /= len(train_loader)
         
-        # Eval pass
         val_loss = evaluate(model, val_loader, device)
         
         print(f"Epoch {epoch} | Train Loss: {train_loss:.4f} | Val Loss: {val_loss:.4f}")
@@ -105,7 +97,6 @@ def main():
 
     print("Training complete. Saving artifacts...")
     
-    # 6. Save outputs
     artifacts_dir.mkdir(parents=True, exist_ok=True)
     
     model_path = artifacts_dir / "final_model.pt"

@@ -10,7 +10,7 @@ from sklearn.model_selection import train_test_split
 
 
 def run_geometry_analysis():
-    # Setup paths
+
     part3_dir = Path(__file__).resolve().parent
     data_path = part3_dir / "artifacts" / "dataset_with_activations.pt"
     out_dir = part3_dir / "results"
@@ -34,9 +34,6 @@ def run_geometry_analysis():
     
     sum_txt = []
     
-    # -----------------------------------------------------------------
-    # Comparative Plots Storage
-    # -----------------------------------------------------------------
     layer_r2_scores = {l: {} for l in layers}
     layer_pos_r2s = {l: {name: [] for name in targets.keys()} for l in layers}
     layer_cum_var = {}
@@ -45,7 +42,6 @@ def run_geometry_analysis():
         X = ds[f"X_layer{l}"]
         print(f"Analyzing Layer {l}...")
         
-        # PCA
         X_centered = X - X.mean(axis=0)
         pca = PCA().fit(X_centered)
         cum_var = np.cumsum(pca.explained_variance_ratio_)
@@ -56,7 +52,6 @@ def run_geometry_analysis():
         sum_txt.append(f"Layer {l} PCA dims for 90% variance: {n_90}")
         sum_txt.append(f"Layer {l} PCA dims for 95% variance: {n_95}")
         
-        # Regression Global
         sum_txt.append(f"Layer {l} R^2 global test scores:")
         for name, Y in targets.items():
             X_tr, X_te, Y_tr, Y_te = train_test_split(X, Y, test_size=0.2, random_state=42)
@@ -65,7 +60,6 @@ def run_geometry_analysis():
             layer_r2_scores[l][name] = score
             sum_txt.append(f"  R^2 for {name} probe: {score:.4f}")
             
-        # Regression Position-Dependent
         for t in unique_pos:
             mask = (pos == t)
             X_t = X[mask]
@@ -76,13 +70,9 @@ def run_geometry_analysis():
                 score = reg.score(X_te, Y_te)
                 layer_pos_r2s[l][name].append(max(0, score))
         
-    # -----------------------------------------------------------------
-    # Multi-Layer Comparative Plots
-    # -----------------------------------------------------------------
-    
-    # NEW: Multi-layer PCA Scatter (3 panels) - 3D
+
     fig = plt.figure(figsize=(18, 6))
-    comp_colors = ['#e41a1c', '#377eb8', '#4daf4a'] # Red, Blue, Green
+    comp_colors = ['#e41a1c', '#377eb8', '#4daf4a']
     cmap_comp = ListedColormap(comp_colors)
     
     for i, l in enumerate(layers):
@@ -96,7 +86,7 @@ def run_geometry_analysis():
         ax.set_xlabel("PC1")
         ax.set_ylabel("PC2")
         ax.set_zlabel("PC3")
-        ax.view_init(elev=45, azim=45) # Standardized diagonal view
+        ax.view_init(elev=45, azim=45) 
     
     from matplotlib.lines import Line2D
     h = [Line2D([0], [0], marker='o', color='w', label=f'C{i}', markerfacecolor=comp_colors[i], markersize=8) for i in range(3)]
@@ -105,10 +95,9 @@ def run_geometry_analysis():
     plt.savefig(out_dir / "activation_scatter_by_component.png", dpi=150, bbox_inches='tight')
     plt.close()
 
-    # NEW: Multi-layer Within-Component Scatter (3 panels) - 3D
     fig = plt.figure(figsize=(18, 6))
     mask_c0 = (ds["y_component_id"] == 0)
-    belief_c0_s0 = ds["Y_belief_c0"][mask_c0][:, 0]  # P(S_t=0 | C=0)
+    belief_c0_s0 = ds["Y_belief_c0"][mask_c0][:, 0]
     
     for i, l in enumerate(layers):
         X = ds[f"X_layer{l}"]
@@ -122,14 +111,13 @@ def run_geometry_analysis():
         ax.set_xlabel("PC1")
         ax.set_ylabel("PC2")
         ax.set_zlabel("PC3")
-        ax.view_init(elev=45, azim=45) # New vertical-diagonal perspective
+        ax.view_init(elev=45, azim=45) 
     
     fig.colorbar(scatter, ax=fig.axes, label="P(S_t=0 | C=0, prefix)", shrink=0.6)
     plt.suptitle("Within-Component C0 Belief 3D Manifold Across Layers")
     plt.savefig(out_dir / "activation_scatter_c0_by_belief.png", dpi=150, bbox_inches='tight')
     plt.close()
 
-    # 1. PCA Cumulative Variance Comparison
     plt.figure(figsize=(8, 5))
     for l in layers:
         plt.plot(np.arange(1, len(layer_cum_var[l]) + 1), layer_cum_var[l], label=f"Layer {l}")
@@ -144,7 +132,6 @@ def run_geometry_analysis():
     plt.savefig(out_dir / "pca_cumulative_variance.png", dpi=150)
     plt.close()
     
-    # 4. Multi-Layer Probe R^2 Comparison (Bar Plot)
     plt.figure(figsize=(10, 6))
     x = np.arange(len(targets))
     width = 0.25
@@ -159,9 +146,6 @@ def run_geometry_analysis():
     plt.savefig(out_dir / "probe_r2_barplot.png", dpi=150)
     plt.close()
     
-    # 5. Position Dependence Comparison (Final Layer only for clarity or all?)
-    # User original plot had one color for posterior and one for belief.
-    # Let's show both for Layer 2.
     plt.figure(figsize=(8, 5))
     plt.plot(unique_pos, layer_pos_r2s[2]["Posterior_P(C)"], label="L2 Posterior P(C)", color="blue", marker="o")
     avg_belief_l2 = np.mean([layer_pos_r2s[2]["Belief_C0"], layer_pos_r2s[2]["Belief_C1"], layer_pos_r2s[2]["Belief_C2"]], axis=0)
@@ -175,14 +159,12 @@ def run_geometry_analysis():
     plt.savefig(out_dir / "position_probe_r2.png", dpi=150)
     plt.close()
 
-    # 6. Save Table
     rows = []
     for l in layers:
         for name, score in layer_r2_scores[l].items():
             rows.append({"Layer": l, "Target": name, "R2": score})
     pd.DataFrame(rows).to_csv(out_dir / "probe_r2_table.csv", index=False)
 
-    # 7. Summary Metrics
     txt_content = "\n".join(sum_txt)
     with open(out_dir / "summary_metrics.txt", "w") as f:
         f.write(txt_content)

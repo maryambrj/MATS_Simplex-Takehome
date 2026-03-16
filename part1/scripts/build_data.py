@@ -3,9 +3,7 @@
 import sys
 from pathlib import Path
 
-# Add project root to sys.path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
-# Also add part1 explicitly just like train.py does
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 import torch
@@ -23,7 +21,6 @@ def main():
     print("Generating val split (2,000 sequences)...")
     val_records = builder.build_split(num_sequences=2000, seed=123)
 
-    # Confirm counts of components in the training split
     counts = {0: 0, 1: 0, 2: 0}
     for rec in train_records:
         counts[rec["component_index"]] += 1
@@ -33,8 +30,6 @@ def main():
     print(f"  C1: {counts[1]} ({counts[1]/20000:.1%})")
     print(f"  C2: {counts[2]} ({counts[2]/20000:.1%})")
 
-    # Save to disk
-    # We guarantee we are in part1/scripts, so we resolve relative to here
     artifacts_dir = Path(__file__).resolve().parent.parent / "artifacts"
     artifacts_dir.mkdir(parents=True, exist_ok=True)
 

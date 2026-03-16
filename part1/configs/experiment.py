@@ -1,4 +1,4 @@
-"""Build the one fixed experiment specification for the Mess3 non-ergodic mixture baseline."""
+
 
 from src.types import (
     DatasetSpec,
@@ -10,10 +10,6 @@ from src.types import (
 
 
 def build_experiment_spec() -> ExperimentSpec:
-    """Return the complete, frozen specification for the baseline experiment.
-
-    All values are hard-coded.  This is intentionally not configurable.
-    """
 
     dataset = DatasetSpec(
         generator_type="mess3_mixture",
@@ -51,7 +47,4 @@ def build_experiment_spec() -> ExperimentSpec:
         training=training,
     )
 
-
-# Convenience: importable singleton so callers can do
-#   from configs.experiment import EXPERIMENT_SPEC
 EXPERIMENT_SPEC = build_experiment_spec()

@@ -4,13 +4,9 @@ import numpy as np
 
 
 class Mess3MixtureDatasetBuilder:
-    """Builder for mixed non-ergodic datasets.
-
-    Each sequence is drawn entirely from a single chosen Mess3 component.
-    """
 
     def __init__(self, dataset_spec):
-        """Initialize from a dataset config spec."""
+
         self.spec = dataset_spec
         
         self.generator_type = dataset_spec.generator_type
@@ -36,7 +32,6 @@ class Mess3MixtureDatasetBuilder:
         if self.bos_token != 3:
             raise ValueError(f"BOS token must be 3, got {self.bos_token}")
 
-        # Defer import to avoid circular dependencies if any
         from src.mess3 import Mess3Process
         self.components = [
             Mess3Process(alpha=comp.alpha, x=comp.x)
@@ -63,7 +58,6 @@ class Mess3MixtureDatasetBuilder:
             tokens
         ])
 
-        # Final alignment checks
         assert tokens.shape == (16,)
         assert tokens_with_bos.shape == (17,)
         assert hidden_states.shape == (17,)
@@ -89,7 +83,6 @@ class Mess3MixtureDatasetBuilder:
         train_seed: int,
         val_seed: int,
     ) -> dict:
-        """Generate independent train and validation splits."""
         return {
             "train": self.build_split(train_size, train_seed),
             "val": self.build_split(val_size, val_seed),
